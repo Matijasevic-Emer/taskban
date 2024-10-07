@@ -3,7 +3,7 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 import { Player } from "@lottiefiles/react-lottie-player";
 import animationData from "./taskloader.json";
 
-const TaskLoader = () => {
+const TaskLoader = ({ loadingText = "Cargando datos, por favor espera..." }) => {
   return (
     <Box
       sx={{
@@ -12,6 +12,7 @@ const TaskLoader = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "50vh",
+        textAlign: "center", // Centrar texto si es necesario
       }}
     >
       <Player
@@ -19,10 +20,11 @@ const TaskLoader = () => {
         loop
         src={animationData}
         style={{ height: "150px", width: "150px" }}
+        aria-label="Loading animation" // Mejora de accesibilidad
       />
-      <CircularProgress color="primary" sx={{ mt: 2 }} />
+      <CircularProgress color="primary" sx={{ mt: 2 }} aria-label="Loading" />
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Cargando datos, por favor espera...
+        {loadingText}
       </Typography>
     </Box>
   );

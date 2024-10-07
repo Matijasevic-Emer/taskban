@@ -7,7 +7,16 @@ const CardList = ({ tasks, onDelete, onEdit }) => {
   return (
     <Container>
       <Box sx={{ maxHeight: "80vh", overflowY: "auto", padding: 2 }}>
-        {tasks.length === 0 ? (
+        {tasks?.length ? (
+          tasks.map(({ id, ...task }) => (
+            <Card
+              key={id}
+              task={{ id, ...task }}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
+          ))
+        ) : (
           <Box
             sx={{
               display: "flex",
@@ -18,18 +27,9 @@ const CardList = ({ tasks, onDelete, onEdit }) => {
             }}
           >
             <Typography variant="h6" align="center" gutterBottom>
-              {getRandomEmoji()}
+              No tasks available {getRandomEmoji()}
             </Typography>
           </Box>
-        ) : (
-          tasks.map((task) => (
-            <Card
-              key={task.id}
-              task={task}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))
         )}
       </Box>
     </Container>

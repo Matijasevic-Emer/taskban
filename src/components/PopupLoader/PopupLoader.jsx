@@ -1,14 +1,17 @@
-// PopupLoader.jsx
 import React from "react";
-import { Box, Modal } from "@mui/material";
-import Loader from "../Loader/Loader";
-const PopupLoader = ({ open, handleClose }) => {
+import { Box, Modal, Typography } from "@mui/material";
+import Loader from "../Loader/Loader"; // Fallback al Loader por defecto
+
+const PopupLoader = ({ open, handleClose, message, customLoader: CustomLoader }) => {
   return (
     <Modal
       open={open}
       onClose={handleClose}
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
+      closeAfterTransition
+      disableBackdropClick // Deshabilitar cerrar haciendo click fuera del modal
+      disableEscapeKeyDown // Deshabilitar cerrar usando la tecla Escape
     >
       <Box
         sx={{
@@ -21,9 +24,15 @@ const PopupLoader = ({ open, handleClose }) => {
           boxShadow: 24,
           p: 4,
           textAlign: "center",
+          borderRadius: 2,
         }}
       >
-        <Loader />
+        {CustomLoader ? <CustomLoader /> : <Loader />}
+        {message && (
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            {message}
+          </Typography>
+        )}
       </Box>
     </Modal>
   );

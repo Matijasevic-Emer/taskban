@@ -73,6 +73,9 @@ const ProfileDetails = ({
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
             variant="outlined"
             fullWidth
+            required
+            error={!profile.name} // Validación simple
+            helperText={!profile.name ? "El nombre es requerido" : ""}
           />
         ) : (
           <Typography variant="h6">{profile.name}</Typography>
@@ -87,6 +90,9 @@ const ProfileDetails = ({
             onChange={(e) => setProfile({ ...profile, email: e.target.value })}
             variant="outlined"
             fullWidth
+            required
+            error={!profile.email} // Validación simple
+            helperText={!profile.email ? "El email es requerido" : ""}
           />
         ) : (
           <Typography variant="h6">{profile.email}</Typography>
@@ -120,12 +126,18 @@ const ProfileDetails = ({
           color="primary"
           onClick={isEditing ? handleSaveProfile : handleEditProfile}
           sx={{ mr: 2 }}
+          disabled={!profile.name || !profile.email} // Deshabilitar si los campos están vacíos
         >
           {isEditing ? "Guardar Perfil" : "Editar Perfil"}
         </Button>
       )}
 
-      <Button variant="contained" color="secondary" onClick={handleLogout}>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleLogout}
+        disabled={isEditing} // Deshabilitar logout si está editando
+      >
         Cerrar Sesión
       </Button>
     </Box>

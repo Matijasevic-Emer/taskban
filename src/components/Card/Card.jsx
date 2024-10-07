@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card as MUICard,
   CardContent,
@@ -14,14 +14,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 
-const Card = ({ task, onDelete, onEdit, refresh }) => {
+const TaskCard = ({ task, onDelete, onEdit, refresh }) => {
   const [selectedColumn, setSelectedColumn] = useState(task.columnId);
   const [columns, setColumns] = useState([]);
 
   // Cargar los datos del tablero desde localStorage
   useEffect(() => {
     const boardData = JSON.parse(localStorage.getItem("boardData"));
-    if (boardData && boardData.columns) {
+    if (boardData?.columns) {
       setColumns(boardData.columns);
     }
   }, []);
@@ -31,30 +31,38 @@ const Card = ({ task, onDelete, onEdit, refresh }) => {
   const finishDate = new Date(task.estimatedFinishDate).toLocaleDateString();
 
   // Manejador del cambio de columna
-  const handleChangeColumn = async (event) => {
+  const handleChangeColumn = useCallback(async (event) => {
     const newColumnId = event.target.value;
     setSelectedColumn(newColumnId);
 
-    // Hacer un PUT a la API para actualizar la columna de la tarea
-    const response = await fetch(
-      `https://taskban-task.netlify.app/.netlify/functions/server/tasks/${task.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...task,
-          columnId: newColumnId,
-        }),
-      }
-    );
+    try {
+      const response = await fetch(
+        `https://taskban-task.netlify.app/.netlify/functions/server/tasks/${task.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...task,
+            columnId: newColumnId,
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      console.error("Error al actualizar la tarea");
-    } else {
-      window.location.reload();
+      if (!response.ok) {
+        console.error("Error al actualizar la tarea");
+      } else {
+        refresh(); // Llamar a la función refresh en lugar de recargar la página
+      }
+    } catch (error) {
+      console.error("Error en la actualización:", error);
     }
+  }, [task, refresh]);
+
+  const iconButtonStyle = {
+    color: "primary.main",
+    ":hover": { color: "secondary.main" },
   };
 
   return (
@@ -113,7 +121,7 @@ const Card = ({ task, onDelete, onEdit, refresh }) => {
 
       <Box sx={{ display: "flex", justifyContent: "space-between", p: 2 }}>
         <IconButton
-          sx={{ color: "primary.main", ":hover": { color: "secondary.main" } }}
+          sx={iconButtonStyle}
           onClick={(e) => {
             e.stopPropagation();
             onEdit(task.id);
@@ -122,7 +130,7 @@ const Card = ({ task, onDelete, onEdit, refresh }) => {
           <EditIcon />
         </IconButton>
         <IconButton
-          sx={{ color: "primary.main", ":hover": { color: "secondary.main" } }}
+          sx={iconButtonStyle}
           onClick={(e) => {
             e.stopPropagation();
             onDelete(task.id);
@@ -135,4 +143,4 @@ const Card = ({ task, onDelete, onEdit, refresh }) => {
   );
 };
 
-export default Card;
+export default TaskCard;

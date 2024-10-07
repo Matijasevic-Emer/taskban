@@ -1,16 +1,22 @@
 import { Player } from "@lottiefiles/react-lottie-player";
-import animationData from "./tracks.json"; // Ajusta la ruta según la ubicación del archivo
+import animationData from "./tracks.json"; // Asegúrate de que la ruta sea correcta
 import { Box } from "@mui/material";
 import { useEffect } from "react";
 
 const Tracks = () => {
   useEffect(() => {
-    // Desplazarse al fondo de la página
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth", // Opcional: para un desplazamiento suave
-    });
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+
+    // Solo desplazar si el contenido es mayor que la altura de la ventana visible
+    if (scrollHeight > clientHeight) {
+      window.scrollTo({
+        top: scrollHeight,
+        behavior: "smooth", // Desplazamiento suave
+      });
+    }
   }, []);
+
   return (
     <Box
       sx={{
@@ -18,6 +24,7 @@ const Tracks = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        minHeight: "50vh", // Se asegura que ocupe un espacio mínimo
       }}
     >
       <Player
@@ -25,6 +32,7 @@ const Tracks = () => {
         loop
         src={animationData}
         style={{ height: "150px", width: "150px" }}
+        aria-label="Tracks animation" // Mejora de accesibilidad
       />
     </Box>
   );

@@ -11,13 +11,20 @@ const Sim = ({ isFail }) => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        height: "100%", // Mejor ajuste para contenedores flexibles
       }}
     >
       <Player
         autoplay
         loop
         src={animationData}
-        style={{ height: "50vh", width: "50vh" }}
+        style={{
+          height: "50vh",
+          width: "50vh",
+          maxWidth: "100%", // Adaptable a pantallas pequeñas
+          maxHeight: "50vh",
+        }}
+        aria-label={isFail ? "Error animation" : "Idle animation"} // Mejora accesibilidad
       />
       <Typography
         variant="h6"

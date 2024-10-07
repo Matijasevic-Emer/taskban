@@ -25,20 +25,25 @@ const PopupBoard = ({
     description: "",
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (itemId && mode === "edit") {
-      // Fetch the item details using the itemId if editing
-      fetch(
-        `https://taskban-boards.netlify.app/.netlify/functions/server/boards/${itemId}`
-      )
-        .then((response) => response.json())
+      // Fetch item details for editing
+      fetch(`https://taskban-boards.netlify.app/.netlify/functions/server/boards/${itemId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
         .then((data) => {
           setItemDetails({ name: data.name, description: data.description });
           setIsEditing(true);
         })
         .catch((error) => {
           console.error("Error fetching item details:", error);
+          setErrorMessage("Error fetching item details. Please try again.");
         });
     } else if (mode === "create") {
       // Clear form for creation
@@ -58,6 +63,12 @@ const PopupBoard = ({
   };
 
   const handleSubmit = () => {
+    if (!itemDetails.name || !itemDetails.description) {
+      setErrorMessage("Por favor, complete todos los campos.");
+      return;
+    }
+
+    setErrorMessage(""); // Clear previous errors
     if (mode === "create") {
       onCreate(itemDetails);
     } else if (mode === "edit") {
@@ -74,6 +85,7 @@ const PopupBoard = ({
   const handleClose = () => {
     onClose();
     setIsEditing(false);
+    setErrorMessage(""); // Clear errors on close
   };
 
   return (
@@ -92,6 +104,12 @@ const PopupBoard = ({
         <Typography variant="h6" gutterBottom>
           {mode === "create" ? "Crear uno Nuevo!" : "Editar"}
         </Typography>
+
+        {errorMessage && (
+          <Typography color="error" variant="body2">
+            {errorMessage}
+          </Typography>
+        )}
 
         <Box>
           <TextField

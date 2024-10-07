@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Box } from "@mui/material";
 import ColumnWithTasks from "../ColumnWithTasks/ColumnWithTasks";
 import TaskLoader from "../TaskLoader/TaskLoader";
@@ -8,49 +8,37 @@ const ColumnContainer = ({ boardId, refresh }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchBoardData = () => {
+  // Función para obtener los datos del tablero
+  const fetchBoardData = useCallback(() => {
     setLoading(true);
 
-    fetch(
-      `https://taskban-boards.netlify.app/.netlify/functions/server/boards/${boardId}`
-    )
-      .then((columnsResponse) => {
-        if (!columnsResponse.ok) {
-          throw new Error("Error al obtener columnas");
-        }
-        return columnsResponse.json();
-      })
-      .then((columnsData) => {
-        setColumns(
-          Array.isArray(columnsData.columns) ? columnsData.columns : []
-        );
+    const columnsUrl = `https://taskban-boards.netlify.app/.netlify/functions/server/boards/${boardId}`;
+    const tasksUrl = `https://taskban-task.netlify.app/.netlify/functions/server/tasks?boardId=${boardId}`;
 
-        return fetch(
-          `https://taskban-task.netlify.app/.netlify/functions/server/tasks?boardId=${boardId}`
-        );
-      })
-      .then((tasksResponse) => {
-        if (!tasksResponse.ok) {
-          throw new Error("Error al obtener tareas");
+    Promise.all([fetch(columnsUrl), fetch(tasksUrl)])
+      .then(async ([columnsResponse, tasksResponse]) => {
+        if (!columnsResponse.ok || !tasksResponse.ok) {
+          throw new Error("Error al obtener datos del tablero o tareas");
         }
-        return tasksResponse.json();
-      })
-      .then((tasksData) => {
+
+        const columnsData = await columnsResponse.json();
+        const tasksData = await tasksResponse.json();
+
+        setColumns(Array.isArray(columnsData.columns) ? columnsData.columns : []);
         setTasks(Array.isArray(tasksData) ? tasksData : []);
       })
       .catch((error) => {
-        console.error("Error al obtener datos del tablero y tareas:", error);
+        console.error("Error al obtener datos:", error);
         setColumns([]);
         setTasks([]);
       })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+      .finally(() => setLoading(false));
+  }, [boardId]);
 
+  // Ejecutar la función de obtención de datos al cargar el componente o cuando cambie el boardId o el refresh
   useEffect(() => {
     fetchBoardData();
-  }, [boardId, refresh]); // Agregar `refresh` como dependencia para que se recarguen los datos
+  }, [boardId, refresh, fetchBoardData]);
 
   if (loading) {
     return <TaskLoader />;
@@ -71,7 +59,7 @@ const ColumnContainer = ({ boardId, refresh }) => {
     >
       {columns.map((column) => {
         const tasksForColumn = tasks.filter(
-          (task) => task.columnId == column.id.toString()
+          (task) => task.columnId === column.id.toString()
         );
 
         return (

@@ -12,6 +12,8 @@ import {
   InputLabel,
   FormControl,
   Alert,
+  DialogActions,
+  DialogTitle,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -43,7 +45,8 @@ const PopupCard = ({
     involvedUsers: [],
   });
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState(""); // Estado para manejar errores
+  const [error, setError] = useState("");
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // Para confirmar eliminación
 
   useEffect(() => {
     // Cargar usuarios del teamId
@@ -51,12 +54,8 @@ const PopupCard = ({
       `https://taskban-user.netlify.app/.netlify/functions/server/users?teamId=${teamId}`
     )
       .then((response) => response.json())
-      .then((data) => {
-        setUsers(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-      });
+      .then((data) => setUsers(data))
+      .catch((error) => console.error("Error fetching users:", error));
   }, [teamId]);
 
   useEffect(() => {
@@ -81,9 +80,7 @@ const PopupCard = ({
             involvedUsers: data.userInvolve || [],
           });
         })
-        .catch((error) => {
-          console.error("Error fetching item details:", error);
-        });
+        .catch((error) => console.error("Error fetching item details:", error));
     } else if (mode === "create") {
       setItemDetails({
         name: "",
@@ -114,7 +111,6 @@ const PopupCard = ({
   };
 
   const handleSubmit = () => {
-    // Validación de campos obligatorios
     if (
       !itemDetails.name ||
       !itemDetails.description ||
@@ -122,6 +118,15 @@ const PopupCard = ({
       itemDetails.points <= 0
     ) {
       setError("Por favor, complete todos los campos obligatorios.");
+      return;
+    }
+
+    if (
+      itemDetails.startDate &&
+      itemDetails.endDate &&
+      dayjs(itemDetails.endDate).isBefore(itemDetails.startDate)
+    ) {
+      setError("La fecha de fin no puede ser anterior a la fecha de inicio.");
       return;
     }
 
@@ -139,7 +144,12 @@ const PopupCard = ({
   };
 
   const handleDelete = () => {
+    setOpenConfirmDialog(true); // Abrir confirmación de eliminación
+  };
+
+  const confirmDelete = () => {
     onDelete(itemId);
+    setOpenConfirmDialog(false);
     onClose();
   };
 
@@ -162,7 +172,7 @@ const PopupCard = ({
         <Typography variant="h6" gutterBottom>
           {mode === "create" ? "Crear uno Nuevo!" : "Editar"}
         </Typography>
-        {error && <Alert severity="error">{error}</Alert>} {/* Mostrar error */}
+        {error && <Alert severity="error">{error}</Alert>}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Box>
             <TextField
@@ -199,7 +209,7 @@ const PopupCard = ({
                 onChange={handleInputChange}
                 fullWidth
                 margin="normal"
-                inputProps={{ min: 1 }} // Cambiado para requerir al menos 1
+                inputProps={{ min: 1 }}
                 required
               />
               <IconButton onClick={() => handlePointsChange(1)}>
@@ -289,14 +299,38 @@ const PopupCard = ({
 
             <Box display="flex" justifyContent="flex-end" mt={2}>
               {mode === "edit" && (
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={handleDelete}
-                  sx={{ mr: 2 }}
-                >
-                  Eliminar
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={handleDelete}
+                    sx={{ mr: 2 }}
+                  >
+                    Eliminar
+                  </Button>
+                  {/* Diálogo de confirmación para eliminar */}
+                  <Dialog
+                    open={openConfirmDialog}
+                    onClose={() => setOpenConfirmDialog(false)}
+                  >
+                    <DialogTitle>Confirmar Eliminación</DialogTitle>
+                    <DialogActions>
+                      <Button
+                        onClick={() => setOpenConfirmDialog(false)}
+                        color="primary"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={confirmDelete}
+                        color="error"
+                        variant="contained"
+                      >
+                        Eliminar
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </>
               )}
 
               <Button

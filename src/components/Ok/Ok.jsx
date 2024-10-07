@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Player } from "@lottiefiles/react-lottie-player";
 import animationData from "./confetti.json";
 
@@ -19,9 +19,10 @@ const Ok = () => {
         loop
         src={animationData}
         style={{ height: "150px", width: "150px" }}
+        alt="Animación de confetti" // Mejora de accesibilidad
       />
       <Typography variant="h6" sx={{ mt: 2 }}>
-        Empecemos!!
+        ¡Empecemos!
       </Typography>
     </Box>
   );

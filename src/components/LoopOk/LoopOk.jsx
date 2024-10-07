@@ -6,7 +6,6 @@ const LoopOk = () => {
   const [cita, setCita] = useState("");
 
   useEffect(() => {
-    // Función para actualizar la cita
     const actualizarCita = () => {
       setCita(getCitasRandom());
     };
@@ -21,27 +20,27 @@ const LoopOk = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  const boxStyles = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "50vh",
+  };
+
+  const typographyStyles = {
+    mt: 2,
+    textAlign: "center",
+    fontSize: 15,
+    color: "gray",
+    fontStyle: "italic",
+    transition: "opacity 0.3s ease", // Transición suave
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "50vh",
-      }}
-    >
-      <Typography
-        variant="h6"
-        sx={{
-          mt: 2,
-          textAlign: "center",
-          fontSize: 15,
-          color: "gray",
-          fontStyle: "italic",
-        }}
-      >
-        {cita ? cita : "Cargando cita..."}
+    <Box sx={boxStyles}>
+      <Typography variant="h6" sx={typographyStyles}>
+        {cita || "Cargando una cita inspiradora..."}
       </Typography>
     </Box>
   );

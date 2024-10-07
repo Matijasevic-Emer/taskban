@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppBar, IconButton, Toolbar, Typography, Box } from "@mui/material";
 import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { useTheme } from "@mui/material/styles";
-import Tracks from "../Tracks/Tracks";
+import Tracks from "../Tracks/Tracks"; // Suponiendo que se usa en algún lugar
 import Ok from "../Ok/Ok";
 
 const Footer = () => {
@@ -12,10 +12,13 @@ const Footer = () => {
 
   const handleClick = () => {
     setShowLottie(true);
-    setTimeout(() => {
-      setShowLottie(false);
-    }, 3000);
+    setTimeout(() => setShowLottie(false), 3000);
   };
+
+  // Limpieza del efecto al desmontar el componente
+  useEffect(() => {
+    return () => clearTimeout();
+  }, []);
 
   return (
     <>
@@ -35,8 +38,9 @@ const Footer = () => {
             color="inherit"
             href="https://github.com/Matijasevic-Emer/taskban"
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             size="large"
+            aria-label="GitHub repository"
           >
             <GitHubIcon />
           </IconButton>
@@ -44,7 +48,8 @@ const Footer = () => {
           <Typography variant="h6" pl={3}>
             Made with ❤️‍🔥 by Equipo5
           </Typography>
-          <IconButton color="inherit" size="large" onClick={handleClick}>
+
+          <IconButton color="inherit" size="large" onClick={handleClick} aria-label="Show Lottie animation">
             <EmojiObjectsIcon />
           </IconButton>
         </Toolbar>
