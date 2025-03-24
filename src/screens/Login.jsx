@@ -100,6 +100,16 @@ const Login = () => {
       >
         Registrarse
       </Button>
+
+      {/* Texto para usuario invitado */}
+      <Typography
+        variant="body2"
+        sx={{ mt: 2, color: "gray", fontSize: "0.85rem" }}
+      >
+        😉 Si no deseas registrarte, puedes acceder con el usuario{" "}
+        <strong>invitado@correo.com</strong> y la contraseña{" "}
+        <strong>invitado</strong>.
+      </Typography>
     </Box>
   );
 };
